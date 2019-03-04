@@ -1,7 +1,16 @@
-FROM tensorflow/tensorflow:1.12.0-py3
+# Dockerfile has two Arguments: tag, branch
+# tag - tag for Tensorflow Image (default: 1.12.0-py3)
+# branch - user repository branch to clone (default: master, other option: test)
+
+ARG tag 1.12.0-py3
+
+FROM tensorflow/tensorflow:${tag}
 LABEL maintainer="Ignacio Heredia (CSIC) <iheredia@ifca.unican.es>"
 LABEL version="0.1"
 LABEL description="DEEP as a Service Container: Sentinel-2 super-resolution"
+
+# What user branch to clone (!)
+ARG branch=master
 
 # Install ubuntu updates and python related stuff
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
@@ -29,7 +38,7 @@ WORKDIR /srv
 RUN wget https://downloads.rclone.org/rclone-current-linux-amd64.deb && \
     dpkg -i rclone-current-linux-amd64.deb && \
     apt install -f && \
-    touch /srv/.rclone.conf && \
+    touch /srv/.rclone/rclone.conf && \
     rm rclone-current-linux-amd64.deb && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
@@ -63,7 +72,7 @@ RUN add-apt-repository -y ppa:ubuntugis/ubuntugis-unstable && \
 	apt install -y gdal-bin python-gdal python3-gdal
 
 ## Install user app
-RUN git clone https://github.com/deephdc/sen2sr && \
+RUN git clone -b ${branch} https://github.com/deephdc/sen2sr && \
     cd  sen2sr && \
     pip install --no-cache-dir -e . && \
     rm -rf /root/.cache/pip/* && \
@@ -76,4 +85,5 @@ EXPOSE 5000
 # Open Monitoring port
 EXPOSE 6006
 
-CMD ["deepaas-run","--listen-ip=0.0.0.0"]
+# Account for OpenWisk functionality (deepaas >=0.3.0)
+CMD ["sh", "-c", "deepaas-run --openwhisk-detect --listen-ip 0.0.0.0"]

@@ -12,7 +12,7 @@ services:
 
 
     sen2sr-gpu:
-      image: deephdc/deep-oc-sen2sr
+      image: deephdc/deep-oc-sen2sr:gpu
       runtime: nvidia
       ports:
         - 5000:5000
