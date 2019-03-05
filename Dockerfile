@@ -2,7 +2,7 @@
 # tag - tag for Tensorflow Image (default: 1.12.0-py3)
 # branch - user repository branch to clone (default: master, other option: test)
 
-ARG tag 1.12.0-py3
+ARG tag=1.12.0-py3
 
 FROM tensorflow/tensorflow:${tag}
 LABEL maintainer="Ignacio Heredia (CSIC) <iheredia@ifca.unican.es>"
@@ -38,7 +38,7 @@ WORKDIR /srv
 RUN wget https://downloads.rclone.org/rclone-current-linux-amd64.deb && \
     dpkg -i rclone-current-linux-amd64.deb && \
     apt install -f && \
-    touch /srv/.rclone/rclone.conf && \
+    mkdir /srv/.rclone/ && touch /srv/.rclone/rclone.conf && \
     rm rclone-current-linux-amd64.deb && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
